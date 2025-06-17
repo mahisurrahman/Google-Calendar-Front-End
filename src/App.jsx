@@ -10,7 +10,7 @@ function App() {
 
   return (
     <React.Fragment>
-      <div className="h-screen flex flex-col ">
+      <div className="h-screen flex flex-col">
         <CalendarHeader />
         <div className="flex flex-1">
           <Sidebar />
