@@ -8,7 +8,7 @@ function Day({ day, rowIdx }) {
       : "";
   };
   return (
-    <div className="border border-gray-50 flex flex-col">
+    <div className="border border-gray-100 flex flex-col">
       <header className="flex flex-col items-center">
         {rowIdx === 0 && (
           <p className="text-xs mt-1 ">{day.format("ddd").toUpperCase()}</p>
