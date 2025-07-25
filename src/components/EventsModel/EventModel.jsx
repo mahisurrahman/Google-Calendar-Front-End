@@ -1,11 +1,4 @@
-import {
-  AlignJustify,
-  BookMarked,
-  Check,
-  Clock,
-  Hamburger,
-  X,
-} from "lucide-react";
+import { AlignJustify, Check, Clock, Trash, X } from "lucide-react";
 import React, { useContext, useState } from "react";
 import GlobalContext from "../../context/GlobalContext";
 
@@ -20,11 +13,51 @@ const labelClasses = [
 ];
 
 function EventModel() {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [selectedLabel, setSelectedLabel] = useState(labelClasses[0]);
-  const { setShowEventModel, daySelected } = useContext(GlobalContext);
-  console.log(daySelected, "Day Selected");
+  const {
+    setShowEventModel,
+    daySelected,
+    dispatchCalEvent,
+    selectedEvent,
+    setSelectedEvent,
+  } = useContext(GlobalContext);
+  const [title, setTitle] = useState(selectedEvent ? selectedEvent.title : "");
+  const [description, setDescription] = useState(
+    selectedEvent ? selectedEvent.description : ""
+  );
+  const [selectedLabel, setSelectedLabel] = useState(
+    selectedEvent ? selectedEvent.label : labelClasses[0]
+  );
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!title || !description) {
+      alert("Please fill in all fields");
+      return;
+    }
+
+    const calendarEvent = {
+      title,
+      description,
+      label: selectedLabel,
+      date: daySelected.valueOf(),
+      id: selectedEvent ? selectedEvent.id : Date.now(),
+    };
+
+    if (selectedEvent) {
+      dispatchCalEvent({ type: "update", payload: calendarEvent });
+      setTitle("");
+      setDescription("");
+      setSelectedLabel(labelClasses[0]);
+      setShowEventModel(false);
+    } else {
+      dispatchCalEvent({ type: "push", payload: calendarEvent });
+      setTitle("");
+      setDescription("");
+      setSelectedLabel(labelClasses[0]);
+      setShowEventModel(false);
+    }
+  };
+
   return (
     <div className="h-screen w-full fixed left-0 bg-black/20 z-50 top-0 flex items-center justify-center">
       <form className="bg-white rounded-lg shadow-2xl w-1/4">
@@ -32,16 +65,35 @@ function EventModel() {
           <span className="text-gray-400">
             <AlignJustify className="cursor-pointer" />
           </span>
-          <button onClick={() => setShowEventModel(false)}>
-            <span className="text-gray-400">
-              <X className="cursor-pointer" />
-            </span>
-          </button>
+          <div className="flex items-center gap-x-2">
+            {selectedEvent ? (
+              <button
+                className="text-red-500 hover:cursor-pointer"
+                onClick={() => {
+                  dispatchCalEvent({ type: "delete", payload: selectedEvent });
+                  setShowEventModel(false);
+                }}
+              >
+                <Trash />
+              </button>
+            ) : (
+              <></>
+            )}
+            <button
+              onClick={() => {
+                setShowEventModel(false);
+                setSelectedEvent(null);
+              }}
+            >
+              <span className="text-gray-400">
+                <X className="cursor-pointer" />
+              </span>
+            </button>
+          </div>
         </header>
         <div className="p-3">
-          <div className="grid grid-cols-3 items-end gap-y-7">
-            <div></div>
-            <div className="col-span-2">
+          <div className="">
+            <div className="">
               <div className="flex items-center gap-x-2">
                 <span className="text-gray-400">
                   <Clock className="cursor-pointer text-blue-600" />
@@ -104,6 +156,15 @@ function EventModel() {
             </div>
           </div>
         </div>
+        <footer className="flex items-center justify-end w-full border-t border-gray-200 p-3 mt-5">
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            className="px-4 py-2 rounded bg-blue-600 text-white flex items-center gap-x-2 shadow-lg hover:cursor-pointer hover:bg-blue-700 transition-colors duration-300 hover:shadow-xl"
+          >
+            Save
+          </button>
+        </footer>
       </form>
     </div>
   );
